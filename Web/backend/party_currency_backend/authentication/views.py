@@ -23,7 +23,7 @@ class PasswordResetThrottle(AnonRateThrottle):
 @api_view(["GET"])
 @permission_classes([AllowAny])
 def google_login(request):
-    oauthurl = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={os.getenv('GOOGLE_CLIENT_ID')}&redirect_uri=https://party-currency-app.onrender.com/auth/google/callback&response_type=code&scope=email profile"
+    oauthurl = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={os.getenv('GOOGLE_CLIENT_ID')}&redirect_uri={os.getenv('GOOGLE_OAUTH2_REDIRECT_URI')}&response_type=code&scope=email profile"
     from django.http import HttpResponseRedirect
     return HttpResponseRedirect(oauthurl)
     # return Response({"oauthurl": oauthurl}, status=status.HTTP_200_OK)
@@ -169,7 +169,7 @@ def login(request):
         if user.is_superuser:
             return Response({"message": "Admin Login, Use api/users/profile to get user details passing this token as authorization, use api/admin for admin operations",
                              "token": token.key,
-                             "user":"Admin"}, status=status.HTTP_200_OK)
+                             "user":"admin"}, status=status.HTTP_200_OK)
        
         return Response({
             "message": "Login successful. Use api/users/profile to get user details passing this token as authorization",
