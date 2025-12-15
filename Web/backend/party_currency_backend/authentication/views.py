@@ -47,6 +47,7 @@ def google_callback(request):
         client_id = os.getenv("GOOGLE_CLIENT_ID")
         client_secret = os.getenv("GOOGLE_CLIENT_SECRET")
         redirect_uri = os.getenv("GOOGLE_OAUTH_REDIRECT_URI")
+        # forcing redeploy
        
         import urllib.parse
         redirect_uri = redirect_uri.strip()
