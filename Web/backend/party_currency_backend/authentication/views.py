@@ -10,14 +10,36 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.decorators import permission_classes,throttle_classes
 from .utils import PasswordResetCodeManager as prcm
-from django.core.mail import send_mail
 from rest_framework.throttling import AnonRateThrottle
 from .utils import PasswordResetCodeManager as prcm
 import os
-
+from django.core.mail import send_mail
 
 class PasswordResetThrottle(AnonRateThrottle):
     rate = '3/hour'
+
+
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def send_verification_email(request):
+        email = request.data.get("email")
+        print(email)
+        if not email:
+            return Response({"message": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = CUser.objects.filter(email=email).first()
+        if user is not None:
+            return Response({"message": "Email is already registered"}, status=status.HTTP_400_BAD_REQUEST)
+
+        code = prcm.generate_code(email)
+        send_mail(
+            subject='Email Verification Code',
+            message=f'Your email verification code is: {code}',
+            from_email='Kayode',
+            recipient_list=[email],
+        )    
+        return Response({"message": "Verification code sent to email"}, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -61,7 +83,6 @@ def google_callback(request):
         }
        
         
-        # Import requests at the top of your file
         import requests
         
        
@@ -81,7 +102,6 @@ def google_callback(request):
                     "redirect_uri": redirect_uri,
                     "grant_type": "authorization_code",
                     
-                    # Don't include code or client_secret for security
                 }
             }, status=status.HTTP_400_BAD_REQUEST)
         
@@ -186,6 +206,9 @@ def login(request):
 @permission_classes([AllowAny])
 def signupUser(request):
     request.data['email'] = request.data['email'].strip().lower()
+    code = request.data.get("code")
+    if not prcm.validate_code(request.data['email'], code):
+        return Response({"message": "Invalid or expired verification code"}, status=status.HTTP_400_BAD_REQUEST)
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = CUser.objects.create_user(
@@ -214,6 +237,10 @@ def signupUser(request):
 @permission_classes([AllowAny])
 def signupMerchant(request):
     request.data['email'] = request.data['email'].strip().lower()
+    code = request.data.get("code")
+    if not prcm.validate_code(request.data['email'], code):
+        return Response({"message": "Invalid or expired verification code"}, status=status.HTTP_400_BAD_REQUEST)
+    
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = Merchant.objects.create_user(

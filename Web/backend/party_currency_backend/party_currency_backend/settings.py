@@ -95,6 +95,18 @@ EMAIL_BACKEND = os.getenv('EMAIL_BACKEND')
 # EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 # EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
+# Basic SMTP configuration (example for Gmail)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Replace with your SMTP host
+EMAIL_PORT = 587  # Common ports: 587 (TLS) or 465 (SSL)
+EMAIL_USE_TLS = True  # Or EMAIL_USE_SSL = True for SSL
+EMAIL_HOST_USER = ''  # Your sender email
+EMAIL_HOST_PASSWORD = ''  # Use app password, not regular password
+DEFAULT_FROM_EMAIL = 'Kayode Ojo'  # Default sender if not specified
+
+# Optional: Character set (defaults to 'utf-8')
+DEFAULT_CHARSET = 'utf-8'
+
 # Static files configuration for production
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
